@@ -1,0 +1,54 @@
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments & Package Management
+.venv/
+venv/
+env/
+.uv/
+
+# Miscellaneous
+AGENTS.md
+
+# Build & Distribution
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Testing, Coverage & Linters
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets & Environment Variables
+.env
+.env.*
+*.env
+!.env.example
+
+# Tool Outputs & Logs
+output/
+downloads/
+*.log
+
+# Local Target Lists
+targets.txt
+urls.txt
+scratch/
+
+# IDE & OS Specific
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
