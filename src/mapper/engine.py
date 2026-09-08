@@ -6,7 +6,7 @@ import httpx
 
 from mapper.downloader import AsyncDownloader
 from mapper.models import DownloadResult, DownloadStats, MapperConfig
-from mapper.parser import discover_map_urls
+from mapper.parser import decode_inline_sourcemap, discover_map_urls, extract_sourcemap_ref
 from mapper.validator import is_js_url
 
 
@@ -99,6 +99,18 @@ class MapperEngine:
                 if res.success and content:
                     try:
                         text_content = content.decode("utf-8", errors="replace")
+                        inline_map = decode_inline_sourcemap(extract_sourcemap_ref(text_content) or "")
+                        if inline_map is not None and res.local_path:
+                            stats.map_files_discovered += 1
+                            inline_result = self.downloader.write_inline_source_map(res.local_path, inline_map)
+                            if inline_result.success:
+                                stats.map_files_downloaded += 1
+                                if inline_result.local_path:
+                                    stats.downloaded_files.append(inline_result.local_path)
+                            else:
+                                stats.map_files_invalid += 1
+                            continue
+
                         discovered = discover_map_urls(
                             js_url=res.url,
                             js_content=text_content,
@@ -110,8 +122,8 @@ class MapperEngine:
                     except Exception as e:
                         self._log(f"[bold red][ERROR][/bold red] Error analyzing JS content for {res.url}: {e}")
 
-            stats.map_files_discovered = len(candidate_map_urls)
-            self._log(f"[dim #FFA500][DEBUG][/dim #FFA500] Discovered {len(candidate_map_urls)} potential source map candidate URL(s)")
+            stats.map_files_discovered += len(candidate_map_urls)
+            self._log(f"[dim #FFA500][DEBUG][/dim #FFA500] Discovered {stats.map_files_discovered} potential source map candidate(s)")
 
             # 4. Download and validate candidate map files concurrently
             if candidate_map_urls:

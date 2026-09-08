@@ -9,6 +9,8 @@ Provides:
 
 from __future__ import annotations
 
+import base64
+import binascii
 import re
 from typing import Dict, List, Optional, Set
 from urllib.parse import urljoin, urlparse, urlunparse
@@ -82,6 +84,29 @@ def extract_sourcemap_ref(content: str) -> Optional[str]:
             if ref:
                 return ref
     return None
+
+
+def decode_inline_sourcemap(ref: str) -> Optional[bytes]:
+    """Decodes a base64-encoded JSON source map data URI.
+
+    Args:
+        ref: Value from a sourceMappingURL comment.
+
+    Returns:
+        Decoded source map bytes, or None when the reference is not a supported
+        inline source map.
+    """
+    if not ref or not ref.lower().startswith("data:application/json"):
+        return None
+
+    metadata, separator, encoded_map = ref.partition(",")
+    if not separator or ";base64" not in metadata.lower() or not encoded_map:
+        return None
+
+    try:
+        return base64.b64decode(encoded_map, validate=True)
+    except (binascii.Error, ValueError):
+        return None
 
 
 def resolve_map_url(base_js_url: str, ref: str) -> Optional[str]:

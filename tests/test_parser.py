@@ -1,12 +1,19 @@
 """Unit tests for parser module."""
 
 from mapper.parser import (
+    decode_inline_sourcemap,
     discover_map_urls,
     extract_sourcemap_ref,
     get_fallback_map_url,
     get_fallback_map_urls,
     resolve_map_url,
 )
+
+
+def test_decode_inline_sourcemap():
+    ref = "data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImFwcC50cyJdLCJtYXBwaW5ncyI6IkFBQUEifQ=="
+
+    assert decode_inline_sourcemap(ref) == b'{"version":3,"sources":["app.ts"],"mappings":"AAAA"}'
 
 
 def test_extract_sourcemap_ref_slash_slash():

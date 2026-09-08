@@ -196,3 +196,44 @@ class AsyncDownloader:
                     ),
                     None,
                 )
+
+    def write_inline_source_map(self, js_path: str, content: bytes) -> DownloadResult:
+        """Validates and saves an inline source map next to its JavaScript file.
+
+        Args:
+            js_path: Local path of the already downloaded JavaScript file.
+            content: Decoded inline source map bytes.
+
+        Returns:
+            Result describing the local source map write.
+        """
+        is_valid, reason = validate_source_map(content)
+        map_path = Path(js_path).with_name(Path(js_path).name + ".map")
+        if not is_valid:
+            err_msg = f"Invalid source map: {reason}"
+            self._log(f"[bold red][ERROR/FALSE_POSITIVE][/bold red] {js_path} -> {err_msg}")
+            return DownloadResult(
+                url=js_path,
+                success=False,
+                error=err_msg,
+                is_map_file=True,
+            )
+
+        try:
+            map_path.write_bytes(content)
+            self._log(f"[bold green][RECONSTRUCTED][/bold green] {js_path} -> {map_path}")
+            return DownloadResult(
+                url=js_path,
+                success=True,
+                local_path=str(map_path),
+                is_map_file=True,
+            )
+        except OSError as exc:
+            err_msg = f"Failed to write inline source map: {exc}"
+            self._log(f"[bold red][ERROR][/bold red] {js_path} -> {err_msg}")
+            return DownloadResult(
+                url=js_path,
+                success=False,
+                error=err_msg,
+                is_map_file=True,
+            )

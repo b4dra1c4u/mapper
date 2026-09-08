@@ -37,7 +37,7 @@ class MapperConfig(BaseModel):
     concurrency: int = 10
     timeout: float = 10.0
     delay: float = 0.0
-    user_agent: str = "mapper/0.1.3 (BugBounty/OSINT Tool)"
+    user_agent: str = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
     headers: Dict[str, str] = Field(default_factory=dict)
     verify_ssl: bool = True
     debug: bool = False

@@ -92,21 +92,3 @@ uv run pytest -m integration
 # Run all tests (unit + integration)
 uv run pytest -o addopts=""
 ```
-
----
-
-## Building for Distribution
-
-Build source distributions (`.tar.gz`) and binary wheels (`.whl`) into the `dist/` directory:
-
-```bash
-# Clean and build distributable packages
-uv build
-```
-
-The generated artifacts in `dist/` can be installed with `pip` / `pipx` or uploaded to PyPI:
-
-```bash
-# Example: Install the built wheel locally via pipx
-pipx install dist/*.whl --force
-```

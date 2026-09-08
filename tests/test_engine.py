@@ -2,6 +2,7 @@
 
 import pytest
 import httpx
+import base64
 from mapper.engine import MapperEngine
 from mapper.models import MapperConfig
 
@@ -63,3 +64,33 @@ async def test_engine_false_positive_map_rejected(tmp_path):
         )
         assert not res.success
         assert res.error and "Invalid source map" in res.error
+
+
+@pytest.mark.asyncio
+async def test_engine_reconstructs_inline_source_map(tmp_path, monkeypatch):
+    output_dir = tmp_path / "out"
+    config = MapperConfig(output_dir=str(output_dir))
+    source_map = b'{"version":3,"sources":["app.ts"],"mappings":"AAAA"}'
+    inline_map = base64.b64encode(source_map).decode()
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert str(request.url) == "https://example.com/js/app.js"
+        return httpx.Response(
+            200,
+            text=f'console.log("app");\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,{inline_map}',
+            headers={"Content-Type": "application/javascript"},
+        )
+
+    transport = httpx.MockTransport(handler)
+    async_client = httpx.AsyncClient
+    monkeypatch.setattr(
+        "mapper.engine.httpx.AsyncClient",
+        lambda **kwargs: async_client(transport=transport, **kwargs),
+    )
+
+    stats = await MapperEngine(config).run(["https://example.com/js/app.js"])
+
+    map_path = output_dir / "example.com" / "js" / "app.js.map"
+    assert map_path.read_bytes() == source_map
+    assert stats.map_files_discovered == 1
+    assert stats.map_files_downloaded == 1
