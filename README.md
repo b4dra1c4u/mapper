@@ -16,9 +16,12 @@
 
 ## Installation
 
-### Globally via pipx
+Usually just run:
+```bash
+pipx install git+https://github.com/b4dra1c4u/mapper.git
+```
 
-Install `mapper` into an isolated global environment:
+### Alternatives when building yourself
 
 ```bash
 # Install directly from the local repository directory
@@ -28,31 +31,10 @@ pipx install .
 pipx install --editable .
 
 # Or install from a pre-built wheel
-pipx install dist/mapper-0.1.3-py3-none-any.whl --force
+pipx install dist/mapper-VERSION-py3-none-any.whl --force
 
-# Or directly from a Git repository
-pipx install git+https://github.com/b4dra1c4u/mapper.git
-```
-
-### Via `uv`
-
-```bash
+# Or using uv
 uv pip install .
-```
-
----
-
-## Running from Source (Development)
-
-Run `mapper` directly from source without manual installation using `uv`:
-
-```bash
-# Display help and available options
-uv run mapper --help
-
-# Run mapper against a single URL or file
-uv run mapper https://example.com/app.js
-uv run mapper urls.txt -o ./downloads
 ```
 
 ---
@@ -74,6 +56,21 @@ mapper urls.txt --json > results.json
 
 # Silent mode (suppress banner and progress UI, log errors to stderr)
 mapper urls.txt --silent --json
+```
+
+---
+
+## Running from Source (Development)
+
+Run `mapper` directly from source without manual installation using `uv`:
+
+```bash
+# Display help and available options
+uv run mapper --help
+
+# Run mapper against a single URL or file
+uv run mapper https://example.com/app.js
+uv run mapper urls.txt -o ./downloads
 ```
 
 ---
